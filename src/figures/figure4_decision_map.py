@@ -1,5 +1,5 @@
 """
-Generate Figure 4: Cleaning strategy decision map.
+Generate Figure 4: Cleaning Strategy Decision Map.
 Based on model size and time budget.
 """
 
@@ -7,17 +7,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 import sys
+from matplotlib.patches import Patch
 
-# Import centralized paths
-sys.path.append(str(Path(__file__).parent.parent.parent))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
+
 from config.paths import FIGURES_DIR
 
 # ------------------------------------------------------------------
 # 1. Define decision boundaries
 # ------------------------------------------------------------------
-# Based on Table 3:
-# - Small model (≤4B): B1 if budget < 4.67h, C if budget ≥ 4.67h
-# - Large model (≥6.5B): A (No Cleaning)
+# Decision rules:
+# - Small model (≤3B): B1 if budget < 4.67h, C if budget ≥ 4.67h
+# - Large model (>3B): A (No Cleaning)
 # - B2 is NOT recommended everywhere
 
 fig, ax = plt.subplots(figsize=(10, 6))
@@ -31,34 +34,38 @@ for i in range(len(budgets)):
     for j in range(len(model_sizes)):
         p = model_sizes[j]
         b = budgets[i]
-        if p >= 6.5 or b < 0.45:
-            Z[i, j] = 0  # A (No Cleaning)
-        elif p <= 4.0 and b < 4.67:
-            Z[i, j] = 1  # B1 (Rule)
-        elif p <= 4.0 and b >= 4.67:
-            Z[i, j] = 2  # C (Manual)
+        if p > 3.0 or b < 0.45:
+            Z[i, j] = 0  # A (No Cleaning) - Red
+        elif p <= 3.0 and b < 4.67:
+            Z[i, j] = 1  # B1 (Rule) - Blue
+        elif p <= 3.0 and b >= 4.67:
+            Z[i, j] = 2  # C (Manual) - Green
         else:
-            Z[i, j] = 0  # Fallback: A
+            Z[i, j] = 0
 
+# Color mapping: A=red, B1=blue, C=green
 colors = ['#ff9999', '#66b3ff', '#99ff99']
 ax.contourf(X, Y, Z, levels=[-0.5, 0.5, 1.5, 2.5], colors=colors, alpha=0.7)
 
 # Decision boundaries
-ax.axvline(x=4.0, color='black', linestyle='--', linewidth=1.5, alpha=0.7)
+ax.axvline(x=3.0, color='black', linestyle='--', linewidth=1.5, alpha=0.7)
 ax.axhline(y=4.67, color='black', linestyle='--', linewidth=1.5, alpha=0.7)
 ax.axhline(y=0.45, color='black', linestyle='--', linewidth=1.5, alpha=0.7)
 
-# Strategy labels
-ax.text(1.5, 2.5, 'B1 (Rule-based)', fontsize=12, fontweight='bold', ha='center', alpha=0.9)
-ax.text(1.5, 5.3, 'C (Manual)', fontsize=12, fontweight='bold', ha='center', alpha=0.9)
-ax.text(7.0, 3.0, 'A (No Cleaning)', fontsize=12, fontweight='bold', ha='center', alpha=0.9)
-ax.text(5.0, 5.3, 'B2 (LLM) NOT Recommended', fontsize=10, color='red',
+# B2 label - kept inside the figure
+ax.text(4.5, 5.3, 'B2 (LLM) NOT Recommended', fontsize=10, color='red',
         fontweight='bold', ha='center', style='italic',
         bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
 
-ax.set_xlabel('Model Size (Billion Parameters)')
-ax.set_ylabel('Time Budget (Hours)')
-ax.set_title('Cleaning Strategy Decision Map')
+# Small/Large model labels - vertical orientation
+ax.text(1.5, -0.6, 'Small Models', fontsize=11, fontweight='bold',
+        ha='center', va='top', rotation=0, color='black')
+ax.text(6.5, -0.6, 'Large Models', fontsize=11, fontweight='bold',
+        ha='center', va='top', rotation=0, color='black')
+
+ax.set_xlabel('Model Size (Billion Parameters)', fontsize=11)
+ax.set_ylabel('Time Budget (Hours)', fontsize=11)
+ax.set_title('Cleaning Strategy Decision Map', fontsize=13, fontweight='bold')
 ax.set_xlim(0.5, 10)
 ax.set_ylim(0, 6)
 ax.grid(True, linestyle='--', alpha=0.2)
@@ -69,6 +76,17 @@ params = [1.5, 3.0, 7.0, 8.0]
 for p, name in zip(params, models):
     ax.axvline(x=p, color='gray', linestyle=':', linewidth=1, alpha=0.5)
     ax.text(p, -0.3, name, fontsize=8, ha='center', rotation=45, color='gray')
+
+# ------------------------------------------------------------------
+# 2. Add legend (A, B1, C) on the side
+# ------------------------------------------------------------------
+legend_elements = [
+    Patch(facecolor='#ff9999', edgecolor='black', label='A (No Cleaning)'),
+    Patch(facecolor='#66b3ff', edgecolor='black', label='B1 (Rule-based)'),
+    Patch(facecolor='#99ff99', edgecolor='black', label='C (Manual)'),
+]
+ax.legend(handles=legend_elements, loc='upper right', fontsize=10,
+          title='Cleaning Strategy', title_fontsize=11, framealpha=0.9)
 
 plt.tight_layout()
 plt.savefig(FIGURES_DIR / "figure4_decision_map.png", dpi=300)

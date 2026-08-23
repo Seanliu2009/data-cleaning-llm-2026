@@ -85,8 +85,8 @@ else:
 # 4. Common output directories
 # ============================================================
 OUTPUT_DIR = WORKSPACE / "outputs"
-FIGURES_DIR = OUTPUT_DIR / "figures"
-TABLES_DIR = OUTPUT_DIR / "tables"
+FIGURES_DIR = PROJECT_ROOT / "figures"
+TABLES_DIR = PROJECT_ROOT/ "tables"
 LOGS_DIR = OUTPUT_DIR / "logs"
 
 # ============================================================

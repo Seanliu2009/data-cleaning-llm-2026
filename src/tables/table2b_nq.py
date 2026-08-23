@@ -1,5 +1,5 @@
 """
-Generate Table 2: NQ-Open full statistics (F1 only) for all models and cleaning strategies.
+Generate Table 2b: NQ-Open full statistics (F1 only) for all models and cleaning strategies.
 
 Columns:
 - model: model name (lowercase, hyphen-separated)
@@ -16,7 +16,7 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from config.paths import TABLES_DIR
 
-# Raw data from NQ-Open experiments
+# Raw data from NQ-Open experiments, ordered from smallest to largest model
 data = [
     # Model, Group, F1 Mean, F1 Std
     ("Qwen-1.5B", "A", 0.08010779808778168, 0.012759827875308445),
@@ -39,12 +39,17 @@ data = [
 
 df = pd.DataFrame(data, columns=["model_raw", "group", "f1_mean", "f1_std"])
 
-# Normalize model names
+# Normalize model names: lowercase + hyphen-separated
 df["model"] = df["model_raw"].str.lower().str.replace(" ", "-")
 
-# Reorder columns
+# Sort by model size (smallest to largest)
+model_order = ["qwen-1.5b", "llama-3.2-3b", "qwen-2.5-7b", "llama-8b"]
+df["model"] = pd.Categorical(df["model"], categories=model_order, ordered=True)
+df = df.sort_values(["model", "group"]).reset_index(drop=True)
+
+# Select columns
 df = df[["model", "group", "f1_mean", "f1_std"]]
 
 # Save to CSV
-df.to_csv(TABLES_DIR / "table2_nq_stats.csv", index=False)
-print(f"[INFO] Table 2 saved to {TABLES_DIR / 'table2_nq_stats.csv'}")
+df.to_csv(TABLES_DIR / "table2b_full_statistics_NQ.csv", index=False)
+print(f"[INFO] Table 2b saved to {TABLES_DIR / 'table2b_full_statistics_NQ.csv'}")
