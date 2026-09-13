@@ -42,7 +42,7 @@ GROUPS = ["A", "B1", "B2", "C"]
 SEEDS = list(range(42, 52))
 
 EPOCHS = 3
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 GRAD_ACCUM = 2
 LEARNING_RATE = 2e-4
 LORA_R = 8

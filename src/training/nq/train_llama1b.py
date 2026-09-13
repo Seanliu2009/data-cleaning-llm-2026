@@ -1,7 +1,7 @@
 """
-Train Llama-3.2-3B on SQuAD 2.0 for all cleaning strategies.
+Train Llama-3.2-1B on NQ-Open for all cleaning strategies.
 Groups: A, B1, B2, C
-Seeds: 42-51 (10 seeds)
+Seeds: 42-46 (5 seeds)
 """
 
 import sys
@@ -26,23 +26,20 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 import gc
 
 from config.paths import (
-    LLAMA_3_2_3B_PATH,
-    LLAMA_3_2_3B_SQUAD_ADAPTER,
-    SQUAD_DATA_TEMPLATE,
+    LLAMA_1B_PATH,
+    LLAMA_1B_NQ_ADAPTER,
+    NQ_DATA_TEMPLATE,
     PROGRESS_DIR,
 )
 
-# ------------------------------------------------------------------
-# Configuration
-# ------------------------------------------------------------------
-MODEL_KEY = "llama3b"
-MODEL_PATH = str(LLAMA_3_2_3B_PATH)
-OUTPUT_BASE = LLAMA_3_2_3B_SQUAD_ADAPTER
-DATA_PATH_TEMPLATE = str(SQUAD_DATA_TEMPLATE)
+MODEL_KEY = "llama1b"
+MODEL_PATH = str(LLAMA_1B_PATH)
+OUTPUT_BASE = LLAMA_1B_NQ_ADAPTER
+DATA_PATH_TEMPLATE = str(NQ_DATA_TEMPLATE)
 
 GROUPS = ["A", "B1", "B2", "C"]
-SEEDS = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
-COMPLETED_FILE = PROGRESS_DIR / "train_llama3b_squad_progress.json"
+SEEDS = [42, 43, 44, 45, 46]
+COMPLETED_FILE = PROGRESS_DIR / "train_llama1b_nq_progress.json"
 
 BATCH_SIZE = 8
 GRAD_ACCUM = 2
@@ -53,9 +50,6 @@ EPOCHS = 3
 MAX_SEQ_LENGTH = 512
 LEARNING_RATE = 2e-4
 
-# ------------------------------------------------------------------
-# Helper functions
-# ------------------------------------------------------------------
 def format_alpaca(example):
     return f"<|user|>\n{example['instruction']}\n{example['input']}\n<|assistant|>\n{example['output']}"
 
@@ -75,14 +69,10 @@ def save_completed(completed):
     except Exception as e:
         print(f"[WARN] Failed to save progress: {e}")
 
-# ------------------------------------------------------------------
-# Training function
-# ------------------------------------------------------------------
 def train_model(group, seed):
     data_path = DATA_PATH_TEMPLATE.format(group=group)
     output_dir = OUTPUT_BASE / group / f"seed_{seed}"
 
-    # Skip if adapter already exists
     if os.path.exists(os.path.join(output_dir, "adapter_model.safetensors")):
         print(f"[SKIP] {MODEL_KEY} | {group} | seed{seed} already trained")
         return
@@ -172,9 +162,6 @@ def train_model(group, seed):
 
     print(f"[DONE] {MODEL_KEY} | {group} | seed{seed}")
 
-# ------------------------------------------------------------------
-# Main
-# ------------------------------------------------------------------
 if __name__ == "__main__":
     completed = load_completed()
     total = len(GROUPS) * len(SEEDS)

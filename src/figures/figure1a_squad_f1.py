@@ -1,74 +1,42 @@
 """
-Generate Figure 1a: SQuAD 2.0 F1 comparison (A vs C).
-Models are ordered from smallest to largest.
-Data source: table2a_full_statistics_squad.csv
+Figure 1a: SQuAD 2.0 F1 score comparison (A vs C) for all six models.
 """
 
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from pathlib import Path
 import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent))
 
-# ------------------------------------------------------------------
-# 1. Add project root to path so config can be imported
-# ------------------------------------------------------------------
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from config.paths import TABLES_DIR, FIGURES_DIR
 
-from config.paths import FIGURES_DIR, TABLES_DIR
+TABLE_PATH = TABLES_DIR / "table2a_full_statistics_squad.csv"
+OUTPUT_PATH = FIGURES_DIR / "figure1a_squad_f1_updated.png"
 
-# ------------------------------------------------------------------
-# 2. Load data
-# ------------------------------------------------------------------
-df = pd.read_csv(TABLES_DIR / "table2a_full_statistics_squad.csv")
+df = pd.read_csv(TABLE_PATH)
 
-# Model order: smallest to largest
-model_order = ["qwen-1.5b", "llama-3.2-3b", "qwen-2.5-7b", "llama-8b"]
-df["model"] = pd.Categorical(df["model"], categories=model_order, ordered=True)
-df = df.sort_values(["model", "group"]).reset_index(drop=True)
+model_order = ["Llama-1B", "Qwen-1.5B", "Llama-3B", "Qwen-3B", "Qwen-7B", "Llama-8B"]
+f1_a = [df[(df["model"] == m) & (df["group"] == "A")]["f1_mean"].values[0] for m in model_order]
+f1_c = [df[(df["model"] == m) & (df["group"] == "C")]["f1_mean"].values[0] for m in model_order]
+std_a = [df[(df["model"] == m) & (df["group"] == "A")]["f1_std"].values[0] for m in model_order]
+std_c = [df[(df["model"] == m) & (df["group"] == "C")]["f1_std"].values[0] for m in model_order]
 
-df_a = df[df["group"] == "A"]
-df_c = df[df["group"] == "C"]
-
-display_names = ["Qwen-1.5B", "Llama-3.2-3B", "Qwen-2.5-7B", "Llama-8B"]
-
-f1_a_mean = df_a["f1_mean"].values
-f1_a_std = df_a["f1_std"].values
-f1_c_mean = df_c["f1_mean"].values
-f1_c_std = df_c["f1_std"].values
-
-# ------------------------------------------------------------------
-# 3. Create figure
-# ------------------------------------------------------------------
-fig, ax = plt.subplots(figsize=(8, 5))
-x = np.arange(len(display_names))
+x = np.arange(len(model_order))
 width = 0.35
 
-bars1 = ax.bar(x - width/2, f1_a_mean, width, yerr=f1_a_std, capsize=4,
-               label='A (No Cleaning)', color='#ff9999')
-bars2 = ax.bar(x + width/2, f1_c_mean, width, yerr=f1_c_std, capsize=4,
-               label='C (Manual Cleaning)', color='#66b3ff')
-
-ax.set_ylabel('F1 Score', fontsize=12)
-ax.set_title('SQuAD 2.0: F1 Score (A vs C)', fontsize=13, fontweight='bold')
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.bar(x - width/2, f1_a, width, label='A (No Cleaning)', color='#ff9999', yerr=std_a, capsize=3)
+ax.bar(x + width/2, f1_c, width, label='C (Manual Cleaning)', color='#66b3ff', yerr=std_c, capsize=3)
+ax.set_xlabel('Model')
+ax.set_ylabel('F1 Score')
+ax.set_title('SQuAD 2.0 F1 Score: A vs C')
 ax.set_xticks(x)
-ax.set_xticklabels(display_names, fontsize=10)
-ax.legend(fontsize=10)
-ax.grid(axis='y', linestyle='--', alpha=0.6)
-ax.set_ylim(0, 1)
-
-for bar in bars1:
-    height = bar.get_height()
-    ax.text(bar.get_x() + bar.get_width()/2, height + 0.015,
-            f'{height:.3f}', ha='center', va='bottom', fontsize=8)
-
-for bar in bars2:
-    height = bar.get_height()
-    ax.text(bar.get_x() + bar.get_width()/2, height + 0.015,
-            f'{height:.3f}', ha='center', va='bottom', fontsize=8)
-
+ax.set_xticklabels(model_order)
+ax.legend()
+ax.set_ylim(0, 0.8)
+ax.grid(axis='y', linestyle='--', alpha=0.7)
 plt.tight_layout()
-plt.savefig(FIGURES_DIR / "figure1a_squad_f1.png", dpi=300)
-print(f"[INFO] Figure 1a saved to {FIGURES_DIR / 'figure1a_squad_f1.png'}")
+plt.savefig(OUTPUT_PATH, dpi=300, bbox_inches='tight')
 plt.show()
+print(f"Saved: {OUTPUT_PATH}")

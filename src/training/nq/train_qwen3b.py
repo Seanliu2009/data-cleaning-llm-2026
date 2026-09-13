@@ -1,12 +1,8 @@
 """
-Train Llama-3.2-3B on SQuAD 2.0 for all cleaning strategies.
+Train Qwen-2.5-3B on NQ-Open for all cleaning strategies.
 Groups: A, B1, B2, C
-Seeds: 42-51 (10 seeds)
+Seeds: 42-46 (5 seeds)
 """
-
-import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent.parent))
 
 import os
 import json
@@ -25,24 +21,14 @@ from transformers import (
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 import gc
 
-from config.paths import (
-    LLAMA_3_2_3B_PATH,
-    LLAMA_3_2_3B_SQUAD_ADAPTER,
-    SQUAD_DATA_TEMPLATE,
-    PROGRESS_DIR,
-)
-
-# ------------------------------------------------------------------
-# Configuration
-# ------------------------------------------------------------------
-MODEL_KEY = "llama3b"
-MODEL_PATH = str(LLAMA_3_2_3B_PATH)
-OUTPUT_BASE = LLAMA_3_2_3B_SQUAD_ADAPTER
-DATA_PATH_TEMPLATE = str(SQUAD_DATA_TEMPLATE)
+MODEL_KEY = "qwen3b"
+MODEL_PATH = "/mnt/workspace/models/models/models/Qwen--Qwen2.5-3B-Instruct/snapshots/master"
+OUTPUT_BASE = "/mnt/workspace/models/qwen3b_nq"
+DATA_PATH_TEMPLATE = "/mnt/workspace/nq_data/train_nq_{group}.json"
 
 GROUPS = ["A", "B1", "B2", "C"]
-SEEDS = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
-COMPLETED_FILE = PROGRESS_DIR / "train_llama3b_squad_progress.json"
+SEEDS = [42, 43, 44, 45, 46]
+COMPLETED_FILE = "/mnt/workspace/train_qwen3b_nq_progress.json"
 
 BATCH_SIZE = 8
 GRAD_ACCUM = 2
@@ -53,9 +39,6 @@ EPOCHS = 3
 MAX_SEQ_LENGTH = 512
 LEARNING_RATE = 2e-4
 
-# ------------------------------------------------------------------
-# Helper functions
-# ------------------------------------------------------------------
 def format_alpaca(example):
     return f"<|user|>\n{example['instruction']}\n{example['input']}\n<|assistant|>\n{example['output']}"
 
@@ -75,14 +58,10 @@ def save_completed(completed):
     except Exception as e:
         print(f"[WARN] Failed to save progress: {e}")
 
-# ------------------------------------------------------------------
-# Training function
-# ------------------------------------------------------------------
 def train_model(group, seed):
     data_path = DATA_PATH_TEMPLATE.format(group=group)
-    output_dir = OUTPUT_BASE / group / f"seed_{seed}"
+    output_dir = f"{OUTPUT_BASE}/{group}/seed_{seed}"
 
-    # Skip if adapter already exists
     if os.path.exists(os.path.join(output_dir, "adapter_model.safetensors")):
         print(f"[SKIP] {MODEL_KEY} | {group} | seed{seed} already trained")
         return
@@ -140,7 +119,7 @@ def train_model(group, seed):
     warmup_steps = max(1, int(total_steps * 0.03))
 
     training_args = TrainingArguments(
-        output_dir=str(output_dir),
+        output_dir=output_dir,
         num_train_epochs=EPOCHS,
         per_device_train_batch_size=BATCH_SIZE,
         gradient_accumulation_steps=GRAD_ACCUM,
@@ -163,8 +142,8 @@ def train_model(group, seed):
     )
 
     trainer.train()
-    trainer.save_model(str(output_dir))
-    tokenizer.save_pretrained(str(output_dir))
+    trainer.save_model(output_dir)
+    tokenizer.save_pretrained(output_dir)
 
     del model, trainer
     gc.collect()
@@ -172,9 +151,6 @@ def train_model(group, seed):
 
     print(f"[DONE] {MODEL_KEY} | {group} | seed{seed}")
 
-# ------------------------------------------------------------------
-# Main
-# ------------------------------------------------------------------
 if __name__ == "__main__":
     completed = load_completed()
     total = len(GROUPS) * len(SEEDS)

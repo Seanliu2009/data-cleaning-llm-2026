@@ -1,5 +1,5 @@
 """
-Train Llama-3.2-3B on SQuAD 2.0 for all cleaning strategies.
+Train Llama-3.2-1B on SQuAD 2.0 for all cleaning strategies.
 Groups: A, B1, B2, C
 Seeds: 42-51 (10 seeds)
 """
@@ -26,8 +26,8 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 import gc
 
 from config.paths import (
-    LLAMA_3_2_3B_PATH,
-    LLAMA_3_2_3B_SQUAD_ADAPTER,
+    LLAMA_1B_PATH,
+    LLAMA_1B_SQUAD_ADAPTER,
     SQUAD_DATA_TEMPLATE,
     PROGRESS_DIR,
 )
@@ -35,14 +35,14 @@ from config.paths import (
 # ------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------
-MODEL_KEY = "llama3b"
-MODEL_PATH = str(LLAMA_3_2_3B_PATH)
-OUTPUT_BASE = LLAMA_3_2_3B_SQUAD_ADAPTER
+MODEL_KEY = "llama1b"
+MODEL_PATH = str(LLAMA_1B_PATH)
+OUTPUT_BASE = LLAMA_1B_SQUAD_ADAPTER
 DATA_PATH_TEMPLATE = str(SQUAD_DATA_TEMPLATE)
 
 GROUPS = ["A", "B1", "B2", "C"]
 SEEDS = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
-COMPLETED_FILE = PROGRESS_DIR / "train_llama3b_squad_progress.json"
+COMPLETED_FILE = PROGRESS_DIR / "train_llama1b_squad_progress.json"
 
 BATCH_SIZE = 8
 GRAD_ACCUM = 2

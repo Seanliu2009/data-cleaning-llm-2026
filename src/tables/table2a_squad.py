@@ -1,57 +1,68 @@
 """
-Generate Table 2a: SQuAD 2.0 full statistics (F1 and HER) for all models and cleaning strategies.
-
-Columns:
-- model: model name (lowercase, hyphen-separated)
-- group: cleaning strategy (A, B1, B2, C)
-- f1_mean: mean F1 score
-- f1_std: standard deviation of F1
-- her_mean: mean hallucination error rate
-- her_std: standard deviation of HER
+Table 2a: Full SQuAD statistics (F1 mean/std, HER mean/std) for all six models.
+Reads seed-level evaluation results from the workspace.
 """
 
-import pandas as pd
-from pathlib import Path
 import sys
-
-# Import centralized paths
+from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from config.paths import TABLES_DIR
 
-# Raw data from SQuAD 2.0 experiments, ordered from smallest to largest model
-data = [
-    # Model, Group, F1 Mean, F1 Std, HER Mean, HER Std
-    ("Qwen-1.5B", "A", 0.4095, 0.0252, 0.1540, 0.0462),
-    ("Qwen-1.5B", "B1", 0.3207, 0.0089, 0.1454, 0.0130),
-    ("Qwen-1.5B", "B2", 0.3116, 0.0071, 0.1787, 0.0129),
-    ("Qwen-1.5B", "C", 0.3652, 0.0114, 0.1444, 0.0156),
-    ("Llama-3.2-3B", "A", 0.7143, 0.0104, 0.1992, 0.0119),
-    ("Llama-3.2-3B", "B1", 0.6742, 0.0125, 0.1826, 0.0152),
-    ("Llama-3.2-3B", "B2", 0.6308, 0.0270, 0.2666, 0.0344),
-    ("Llama-3.2-3B", "C", 0.6581, 0.0187, 0.1653, 0.0151),
-    ("Qwen-2.5-7B", "A", 0.7155, 0.0498, 0.1015, 0.0221),
-    ("Qwen-2.5-7B", "B1", 0.5549, 0.0278, 0.0931, 0.0123),
-    ("Qwen-2.5-7B", "B2", 0.5113, 0.0213, 0.0939, 0.0122),
-    ("Qwen-2.5-7B", "C", 0.6440, 0.1060, 0.1072, 0.0217),
-    ("Llama-8B", "A", 0.6549, 0.0146, 0.0981, 0.0056),
-    ("Llama-8B", "B1", 0.6048, 0.0205, 0.1134, 0.0121),
-    ("Llama-8B", "B2", 0.5767, 0.0176, 0.1520, 0.0142),
-    ("Llama-8B", "C", 0.6559, 0.0173, 0.0985, 0.0077),
-]
+import pandas as pd
+import numpy as np
+from config.paths import WORKSPACE, TABLES_DIR
 
-df = pd.DataFrame(data, columns=["model_raw", "group", "f1_mean", "f1_std", "her_mean", "her_std"])
+OUTPUT_CSV = TABLES_DIR / "table2a_full_statistics_squad.csv"
 
-# Normalize model names: lowercase + hyphen-separated
-df["model"] = df["model_raw"].str.lower().str.replace(" ", "-")
+# Main experiment seed-level files
+main_files = {
+    "Qwen-1.5B": WORKSPACE / "qwen_1.5b_2000_eval_results.csv",
+    "Llama-3B": WORKSPACE / "llama32_2000_eval_results.csv",
+    "Qwen-7B": WORKSPACE / "qwen2.5_7b_2000_eval_results.csv",
+    "Llama-8B": WORKSPACE / "llama8b_eval_results.csv",
+}
 
-# Sort by model size (smallest to largest)
-model_order = ["qwen-1.5b", "llama-3.2-3b", "qwen-2.5-7b", "llama-8b"]
-df["model"] = pd.Categorical(df["model"], categories=model_order, ordered=True)
-df = df.sort_values(["model", "group"]).reset_index(drop=True)
+# Depth-extension seed-level files
+chatml_file = WORKSPACE / "eval_results_chatml_complete.csv"
+c_group_file = WORKSPACE / "c_group_eval_results.csv"
 
-# Select columns
-df = df[["model", "group", "f1_mean", "f1_std", "her_mean", "her_std"]]
+frames = []
 
-# Save to CSV
-df.to_csv(TABLES_DIR / "table2a_full_statistics_squad.csv", index=False)
-print(f"[INFO] Table 2a saved to {TABLES_DIR / 'table2a_full_statistics_squad.csv'}")
+# Process main experiment files
+for model, path in main_files.items():
+    df = pd.read_csv(path)
+    df["model"] = model
+    frames.append(df[["model", "group", "seed", "F1", "HER"]].rename(columns={"F1": "f1", "HER": "her"}))
+
+# Process depth-extension: A/B1/B2 from chatml, C from c_group
+df_chatml = pd.read_csv(chatml_file)
+df_chatml = df_chatml[(df_chatml["dataset"] == "squad") & (df_chatml["group"] != "C")]
+
+df_c = pd.read_csv(c_group_file)
+df_c = df_c[df_c["dataset"] == "squad"]
+
+df_depth = pd.concat([df_chatml, df_c], ignore_index=True)
+model_map = {"llama1b": "Llama-1B", "qwen3b": "Qwen-3B"}
+df_depth["model"] = df_depth["model"].map(model_map)
+df_depth = df_depth[["model", "group", "seed", "f1", "her"]]
+frames.append(df_depth)
+
+df_all = pd.concat(frames, ignore_index=True)
+
+# Group and compute statistics
+stats = df_all.groupby(["model", "group"]).agg(
+    f1_mean=("f1", "mean"),
+    f1_std=("f1", "std"),
+    her_mean=("her", "mean"),
+    her_std=("her", "std"),
+).round(4).reset_index()
+
+# Sort by model size order
+model_order = ["Llama-1B", "Qwen-1.5B", "Llama-3B", "Qwen-3B", "Qwen-7B", "Llama-8B"]
+group_order = ["A", "B1", "B2", "C"]
+stats["m"] = stats["model"].apply(lambda x: model_order.index(x))
+stats["g"] = stats["group"].apply(lambda x: group_order.index(x))
+stats = stats.sort_values(["m", "g"]).drop(columns=["m", "g"])
+
+stats.to_csv(OUTPUT_CSV, index=False)
+print(f"Saved: {OUTPUT_CSV}")
+print(stats.to_string(index=False))
