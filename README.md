@@ -85,9 +85,9 @@ See `requirements.txt` for the full list.
 
 ### Installation
 
-git clone https://github.com/Seanliu2009/data-cleaning-llm-2026.git
-cd data-cleaning-llm-2026
-pip install -r requirements.txt
+1. `git clone https://github.com/Seanliu2009/data-cleaning-llm-2026.git`
+2. `cd data-cleaning-llm-2026`
+3. `pip install -r requirements.txt`
 
 Before running any script, verify that `config/paths.py` points to your local
 data and model directories. Paths are environment-aware and support ModelScope,
@@ -111,10 +111,18 @@ Format mismatches between training and evaluation systematically degrade F1 by
 a large margin. See `src/evaluation/` for the verification scripts.
 ## Citation
 
+If you use this code or results, please cite:
+
+- **Title**: How do different data-cleaning strategies affect Factual Consistency and hallucinations in LLMs?
+- **Author**: Liu, Xiaoxiang
+- **Venue**: Proceedings of the 2027 International Conference on Computational Linguistics (COLING)
+- **Year**: 2027
+
+```bibtex
 @inproceedings{liu2027datacleaning,
-  title     = {How do different data-cleaning strategies affect Factual
-               Consistency and hallucinations in LLMs?},
+  title     = {How do different data-cleaning strategies affect Factual Consistency and hallucinations in LLMs?},
   author    = {Liu, Xiaoxiang},
+  booktitle = {Proceedings of the 2027 International Conference on Computational Linguistics (COLING)},
   year      = {2027}
 }
 
