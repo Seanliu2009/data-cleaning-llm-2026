@@ -27,38 +27,38 @@ model scale:
 This pattern holds across extractive QA (SQuAD 2.0), open-domain QA (NQ-Open),
 and code generation (MBPP).
 ## Repository Structure
-.
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── config/
-│ └── paths.py # Unified path management (multi-environment)
-├── src/
-│ ├── data_preparation/ # Data extraction, noise injection, cleaning
-│ │ ├── squad/
-│ │ ├── nq/
-│ │ └── mbpp/
-│ ├── training/ # QLoRA fine-tuning scripts
-│ │ ├── squad/
-│ │ ├── nq/
-│ │ └── code/
-│ └── evaluation/ # Evaluation scripts
-│ ├── squad/
-│ ├── nq/
-│ └── code/
-├── figures/
-│ ├── main/ # Main-text figure scripts
-│ └── appendix/ # Appendix figure scripts
-├── tables/
-│ ├── main/ # Main-text table scripts
-│ └── appendix/ # Appendix table scripts
-└── outputs/
-├── figures/
-│ ├── main/ # Generated main-text figures (PNG)
-│ └── appendix/ # Generated appendix figures (PNG)
-└── tables/
-├── main/ # Generated main-text tables (CSV)
-└── appendix/ # Generated appendix tables (CSV)
+
+- `README.md` — project overview
+- `requirements.txt` — Python dependencies
+- `.gitignore` — files excluded from version control
+- `config/`
+  - `paths.py` — unified path management for ModelScope, AutoDL, and local
+- `src/`
+  - `data_preparation/` — data extraction, noise injection, cleaning
+    - `squad/`
+    - `nq/`
+    - `mbpp/`
+  - `training/` — QLoRA fine-tuning scripts
+    - `squad/`
+    - `nq/`
+    - `code/`
+  - `evaluation/` — evaluation scripts
+    - `squad/`
+    - `nq/`
+    - `code/`
+- `figures/`
+  - `main/` — main-text figure scripts
+  - `appendix/` — appendix figure scripts
+- `tables/`
+  - `main/` — main-text table scripts
+  - `appendix/` — appendix table scripts
+- `outputs/`
+  - `figures/`
+    - `main/` — generated main-text figures (PNG)
+    - `appendix/` — generated appendix figures (PNG)
+  - `tables/`
+    - `main/` — generated main-text tables (CSV)
+    - `appendix/` — generated appendix tables (CSV)
 ## Setup
 
 ### Requirements
