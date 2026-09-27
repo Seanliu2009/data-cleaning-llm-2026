@@ -9,14 +9,12 @@ behavior in LLMs of varying sizes.
 
 **Data cleaning never helps in this setup.** The net benefit of cleaning is
 zero or negative across all six models and three datasets.
-
 | Cleaning strategy | Effect on downstream performance |
 |---|---|
 | **A** (No cleaning) | Baseline |
 | **B1** (Rule-based) | Consistently slightly harmful on SQuAD (6/6 models); roughly equal to A on NQ |
 | **B2** (LLM-assisted, 3B/8B/70B) | Consistently and largely harmful across all models and datasets |
 | **C** (Manual) | Statistically indistinguishable from A on 5/6 models |
-
 The degree of harm depends on **which field the cleaner corrupts**, not on
 model scale:
 
@@ -28,7 +26,6 @@ model scale:
 
 This pattern holds across extractive QA (SQuAD 2.0), open-domain QA (NQ-Open),
 and code generation (MBPP).
-
 ## Repository Structure
 .
 ├── README.md
@@ -62,9 +59,6 @@ and code generation (MBPP).
 └── tables/
 ├── main/ # Generated main-text tables (CSV)
 └── appendix/ # Generated appendix tables (CSV)
-
-text
-
 ## Setup
 
 ### Requirements
@@ -75,6 +69,7 @@ text
 - `bitsandbytes >= 0.49.1` (ROCm-compatible build required for AMD GPUs)
 
 Core dependencies:
+
 transformers
 peft
 datasets
@@ -86,41 +81,36 @@ scipy
 matplotlib
 tqdm
 
-text
-
 See `requirements.txt` for the full list.
 
 ### Installation
 
-```bash
 git clone https://github.com/Seanliu2009/data-cleaning-llm-2026.git
 cd data-cleaning-llm-2026
 pip install -r requirements.txt
-Before running any script, verify that config/paths.py points to your local
+
+Before running any script, verify that `config/paths.py` points to your local
 data and model directories. Paths are environment-aware and support ModelScope,
 AutoDL, and local setups.
 
-Notes on Evaluation Format
-All training and evaluation scripts use the same chat template and
-tokenization:
+## Notes on Evaluation Format
 
-Training applies apply_chat_template(messages, tokenize=False) on the full
-three-turn conversation, and on the first two turns with
-add_generation_prompt=True to build the prompt.
+All training and evaluation scripts use the **same chat template and
+tokenization**:
 
-Evaluation applies the same chat template with add_generation_prompt=True,
-and tokenizes with add_special_tokens=False.
-
-For Llama models, this is required to avoid double BOS injection.
-
-The assistant loss mask is computed by comparing prompt token length with
-full token length.
+- Training applies `apply_chat_template(messages, tokenize=False)` on the full
+  three-turn conversation, and on the first two turns with
+  `add_generation_prompt=True` to build the prompt.
+- Evaluation applies the same chat template with `add_generation_prompt=True`,
+  and tokenizes with `add_special_tokens=False`.
+- For Llama models, this is required to avoid double BOS injection.
+- The assistant loss mask is computed by comparing prompt token length with
+  full token length.
 
 Format mismatches between training and evaluation systematically degrade F1 by
-a large margin. See src/evaluation/ for the verification scripts.
+a large margin. See `src/evaluation/` for the verification scripts.
+## Citation
 
-Citation
-bibtex
 @inproceedings{liu2027datacleaning,
   title     = {How do different data-cleaning strategies affect Factual
                Consistency and hallucinations in LLMs?},
@@ -129,5 +119,7 @@ bibtex
                Computational Linguistics (COLING)},
   year      = {2027}
 }
-License
+
+## License
+
 MIT
