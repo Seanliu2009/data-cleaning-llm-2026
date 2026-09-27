@@ -16,7 +16,7 @@ zero or negative across all six models and three datasets.
 | **B2** (LLM-assisted, 3B/8B/70B) | Consistently and largely harmful across all models and datasets |
 | **C** (Manual) | Statistically indistinguishable from A on 5/6 models |
 
-The degree of harm depends on **which field the cleaner corrupts**, not on model scale:
+The degree of harm depends on **which field the cleaner corrupts**, not on model scale
 
 | Damage location | Example | Downstream impact |
 |---|---|---|
