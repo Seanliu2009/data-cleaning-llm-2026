@@ -115,8 +115,6 @@ a large margin. See `src/evaluation/` for the verification scripts.
   title     = {How do different data-cleaning strategies affect Factual
                Consistency and hallucinations in LLMs?},
   author    = {Liu, Xiaoxiang},
-  booktitle = {Proceedings of the 2027 International Conference on
-               Computational Linguistics (COLING)},
   year      = {2027}
 }
 
