@@ -1,0 +1,6 @@
+strategy,est_time_h,small_delta_her,small_delta_f1,large_delta_her,large_delta_f1,recommendation,ES_small,ES_large
+B1,0.45,-0.0185,-0.0331,0.0017,-0.0292,"Marginal; slightly harmful, low cost",-4.1111,0.3778
+B2_3B,4.95,-0.1111,-0.3135,-0.035,-0.3606,"Not recommended; high cost, large degradation",-2.2444,-0.7071
+B2_8B,6.0,-0.0602,-0.2309,0.01,-0.2515,"Not recommended; high cost, large degradation",-1.0033,0.1667
+B2_70B,11.5,-0.09,-0.2226,-0.0375,-0.2471,"Not recommended; highest cost, large degradation",-0.7826,-0.3261
+C,4.67,0.0016,-0.002,0.0007,-0.0003,Equivalent to no cleaning; high cost,0.0343,0.015

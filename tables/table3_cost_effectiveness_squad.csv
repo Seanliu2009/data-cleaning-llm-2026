@@ -1,4 +1,0 @@
-strategy,est.time_h_,small_model_delta_her,small_model_delta_f1,large_model_delta_her,large_model_delta_f1,recommendation
-B1,0.45,0.07,-0.0659,-0.0035,-0.1054,Small models only
-B2,4.95,0.01,-0.0722,-0.0232,-0.1412,Not recommended
-C,4.67,0.011,-0.0223,-0.003,-0.0353,Small models only (fewer hallucinations but low F1)

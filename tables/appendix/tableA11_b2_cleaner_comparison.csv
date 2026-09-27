@@ -1,0 +1,10 @@
+dataset,cleaner,noisy_samples,clean_samples,repair_rate_%,miss_rate_%,wrong_rate_%,mis_mod_rate_%,in_len_before,in_len_after,damage_type
+SQuAD,B2_3B,295,1705,0.0,0.34,99.66,99.53,834.7,823.6,unspecified
+SQuAD,B2_8B,295,1705,2.71,0.34,96.95,99.59,834.7,552.4,Context prefix removed (87%)
+SQuAD,B2_70B,295,1705,7.8,0.0,92.2,99.82,834.7,153.9,Context prefix removed (94%); Context rewritten (-82% length)
+NQ,B2_3B,295,1705,2.03,0.34,97.63,99.18,48.1,49.7,Normalization / paraphrasing only
+NQ,B2_8B,295,1705,13.22,0.0,86.78,99.24,48.1,54.8,Normalization / paraphrasing only
+NQ,B2_70B,295,1705,9.83,0.0,90.17,99.53,48.1,65.7,Normalization / paraphrasing only
+MBPP,B2_3B,141,833,0.0,0.0,100.0,100.0,0.0,0.0,100.0% outputs wrapped in markdown
+MBPP,B2_8B,141,833,7.09,0.0,92.91,96.52,0.0,0.0,No additional damage
+MBPP,B2_70B,141,833,0.0,0.0,100.0,100.0,0.0,0.0,96.2% outputs wrapped in markdown

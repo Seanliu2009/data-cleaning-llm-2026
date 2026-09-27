@@ -1,0 +1,4 @@
+dataset,n_models,mean_eta_squared,min_eta_squared,max_eta_squared,F_range,p_max,n_significant
+SQuAD,6,0.9975,0.9924,0.9989,1412.4 - 9684.9,6.50e-56,6
+NQ,6,0.6812,0.4443,0.9107,3.8 - 49.0,1.07e-02,6
+MBPP,6,0.6571,0.3049,0.8746,2.1 - 33.5,9.97e-02,5
