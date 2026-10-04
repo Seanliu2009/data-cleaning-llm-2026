@@ -1,0 +1,6 @@
+strategy,est_time_h,delta_her,delta_f1,efficiency_score,recommendation
+B1,0.45,-0.0151,-0.0272,-3.3557,"Marginal; slightly harmful, low cost"
+B2_3B,4.95,-0.0968,-0.3276,-1.955,"Not recommended; high cost, large degradation"
+B2_8B,6.0,-0.0322,-0.2592,-0.537,"Not recommended; high cost, large degradation"
+B2_70B,11.5,-0.0594,-0.261,-0.5166,"Not recommended; highest cost, large degradation"
+C,4.67,0.001,-0.0008,0.0216,Equivalent to no cleaning; high cost

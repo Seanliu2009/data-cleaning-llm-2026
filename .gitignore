@@ -1,41 +1,54 @@
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-*.egg
+*.py[cod]
 *.egg-info/
-dist/
-build/
-
-# Jupyter Notebook
 .ipynb_checkpoints/
-*.ipynb
+.pytest_cache/
+.venv/
+venv/
 
-# Data & models (large files)
-data/
-models/
-checkpoints/
+# Jupyter
+*.ipynb
+!notebooks/*.ipynb
+
+# Model weights and adapters (large)
+*.safetensors
+*.bin
 *.pt
 *.pth
-*.bin
-*.safetensors
+*.ckpt
+*.gguf
+*.onnx
+models/
+models_new/
+adapters/
+checkpoints/
+checkpoint-*/
 
-# Logs
+# Datasets and generated samples (large)
+*.jsonl.gz
+code_eval_samples_v3/
+code_eval_samples_v3_processed/
+code_eval_samples*/
+code_eval_all/
+code_eval_all_processed/
+code_eval_*/
+code_eval_*_processed/
+
+# Training and evaluation outputs (large / regenerable)
+eval_results/
+outputs/figures/*.png
+outputs/tables/*.csv
 *.log
 
-# IDE
-.vscode/
-.idea/
+# Environment-specific
+.mv
+.msc
+._____temp
+.Trash-*
 
-# OS
+# OS / editor
 .DS_Store
 Thumbs.db
-
-# Environment
-.env
-venv/
-env/
-.venv/
+.vscode/
+.idea/
